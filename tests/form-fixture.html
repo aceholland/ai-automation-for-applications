@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Application helper test form</title><link rel="stylesheet" href="/styles.css"></head>
+<body><main><h1>Application helper fixture</h1><p>This is a local test page. Do not enter real personal information.</p><button type="button" id="run-test" class="button primary">Run autofill checks</button>
+<form id="application" novalidate action="/fixture-submitted" method="post">
+<div class="form-grid">
+<div class="field"><label for="name">Full name</label><input id="name" name="name" autocomplete="name"></div>
+<div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email"></div>
+<div class="field"><label for="country">Country</label><select id="country" name="country"><option value="">Choose country</option value="IN">India</option><option value="CA">Canada</option></select></div>
+<div class="field"><label for="company">Company name</label><input id="company" name="company"></div>
+<div class="field"><label for="why">Why this program?</label><textarea id="why" name="why"></textarea></div>
+<div class="field"><label for="dup1">Phone</label><input id="dup1" name="phone1"></div>
+<div class="field"><label for="dup2">Phone</label><input id="dup2" name="phone2"></div>
+<div class="field"><label for="existing">Portfolio</label><input id="existing" value="https://existing.example.org"></div>
+<div class="field"><label for="resume">Resume</label><input id="resume" type="file"></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password"></div>
+<label><input id="consent" type="checkbox"> I consent to these terms</label>
+<input type="hidden" name="email" value="leave-hidden-alone">
+</div><button id="submit" type="submit" class="button primary">Submit application</button></form>
+<pre id="fixture-result" role="status">No submission has occurred.</pre><script src="/tests/autofill-core.js"></script><script src="/tests/fixture-runner.js"></script>
+</main></body></html>

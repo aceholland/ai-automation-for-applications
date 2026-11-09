@@ -1,0 +1,44 @@
+name: opportunity-desk
+services:
+  agent:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8765:8765"
+    environment:
+      OPPORTUNITY_HOST: "0.0.0.0"
+      OPPORTUNITY_PORT: "8765"
+      OPPORTUNITY_DATA_DIR: /data
+      AI_ENABLED: ${AI_ENABLED:-0}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+    volumes:
+      - opportunity_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/health', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:3.1.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      GENERIC_TIMEZONE: Asia/Calcutta
+      TZ: Asia/Calcutta
+      N8N_SECURE_COOKIE: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/workflows:ro
+    depends_on:
+      agent:
+        condition: service_healthy
+volumes:
+  opportunity_data:
+  n8n_data:

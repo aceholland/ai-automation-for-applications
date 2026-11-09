@@ -1,0 +1,147 @@
+{
+  "name": "Opportunity Desk — Prepare",
+  "nodes": [
+    {
+      "id": "e3334c7441805b9e9366c7979f4fb9ba",
+      "name": "Read before running",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -540
+      ],
+      "parameters": {
+        "content": "## Setup\n1. Run the companion service. Compose URL: http://agent:8765. For a host-run service, edit the HTTP URL to http://host.docker.internal:8765 and ensure it is reachable from your n8n container.\n2. Select a Header Auth credential named Opportunity Desk service, with header X-Opportunity-Token and the token shown in Connections.\n3. Intake/Prepare webhooks also require a separate Header Auth credential named Opportunity webhook access. Set header X-Workflow-Token to a separate random value.\n4. Workflows ship inactive. Discovery schedule also ships disabled. Configure sources, test manually, then enable the schedule and publish only when you want recurring runs.\n5. Provider failures are visible in discovery errors or the error response. Nothing in these workflows submits an application.",
+        "height": 470,
+        "width": 600
+      }
+    },
+    {
+      "id": "93b482f908ac544dbe88f7f5cd56426d",
+      "name": "Application request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "opportunity-prepare",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "50bc2af615e7533284089f6e3dde8050",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Opportunity webhook access"
+        }
+      }
+    },
+    {
+      "id": "2ae33b5819bc54d4a874e2bb032fd691",
+      "name": "Call local assistant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'http://agent:8765/api/opportunities/' + encodeURIComponent($json.body.opportunity_id || '') + '/prepare' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { use_ai: $json.body.use_ai === true } }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Opportunity Desk service"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "91f98521e2cb55f4a0b26ec3e7a699ad",
+      "name": "Return prepared result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        600,
+        -70
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "a1a6a44b86a752f3b8f7b7f88db5ac6c",
+      "name": "Return service error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        600,
+        110
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: 'The local assistant could not process this request. Check its address, pairing credential, input, and provider settings; prior saved data is retained.' } }}",
+        "options": {
+          "responseCode": 502
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Application request": {
+      "main": [
+        [
+          {
+            "node": "Call local assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call local assistant": {
+      "main": [
+        [
+          {
+            "node": "Return prepared result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return service error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Calcutta",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none"
+  },
+  "pinData": {},
+  "tags": []
+}

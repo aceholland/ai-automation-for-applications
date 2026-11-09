@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Opportunity Desk — application helper",
+  "version": "1.0.0",
+  "description": "Preview and fill application fields from your local profile. You review and submit.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://127.0.0.1/*", "http://localhost/*"],
+  "action": {"default_popup": "popup.html", "default_title": "Prepare this application with Opportunity Desk"},
+  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'none'"}
+}

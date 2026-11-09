@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Opportunity Desk helper</title><link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="popup.css"><script defer src="popup.js"></script></head>
+<body>
+  <header><span class="eyebrow">OPPORTUNITY DESK</span><h1>A head start.<br><em>Your final say.</em></h1><p>Preview the answers. Fill this page. Review and submit yourself.</p></header>
+  <div id="message" role="status" aria-live="polite"></div>
+  <details id="pairing"><summary>Connect to your local workspace</summary>
+    <form id="pair-form" novalidate>
+      <label for="base-url">Local service address</label><input id="base-url" type="url" value="http://127.0.0.1:8765" required>
+      <label for="pair-token">Pairing token</label><input id="pair-token" type="password" autocomplete="off" required aria-describedby="pair-help">
+      <small id="pair-help">Copy this from Connections in your dashboard.</small><button type="submit" id="connect">Connect workspace</button>
+    </form>
+  </details>
+  <section id="connected" hidden>
+    <label for="opportunity">Application pack</label><select id="opportunity"></select>
+    <p id="selection-note"></p>
+    <div class="actions"><button id="preview" type="button">Preview this page</button><button id="reload" class="secondary" type="button">Refresh packs</button></div>
+    <a id="dashboard" href="http://127.0.0.1:8765" target="_blank" rel="noopener noreferrer">Open your dashboard ↗</a>
+    <div id="preview-list" aria-label="Field preview"></div>
+    <button id="fill" type="button" hidden>Fill selected fields</button>
+    <p class="footnote">Files, declarations, consent, sign-in, and unsupported questions stay with you. This helper never clicks Submit.</p>
+  </section>
+</body></html>

@@ -1,0 +1,68 @@
+OPPORTUNITY APPLICATION ASSISTANT — DESIGN
+Date: 9 November 2026
+
+Purpose
+Build a personal assistant based on the user's linked n8n tutorial, expanded from job matching and resume preparation to jobs, internships, hackathons, research fellowships, competitions, scholarships, grants, and user-defined opportunity types. It should reduce the work of finding relevant opportunities, preparing truthful application materials, and entering repeated information.
+
+Decisions made by the user
+- Use n8n workflows plus a browser helper.
+- Prepare and fill applications for the user to review before submission.
+- Cover multiple opportunity types, rather than jobs alone.
+
+Recommended first version
+A locally hosted n8n workflow package, a small Python companion service with a local dashboard and SQLite storage, and a Chrome/Edge browser extension. The service and extension provide the persistent profile, application queue, generated materials, and connection to a tab the user chooses. n8n coordinates discovery and preparation. The interface is for one person on one computer.
+
+Approaches considered
+1. n8n plus a browser helper — selected by the user. Workflows remain visible and editable, and the helper fills ordinary application forms in the user's existing browser session. Requires running the local service and n8n.
+2. Standalone application — considered but not selected. Offers a single custom interface, at the cost of more custom orchestration and maintenance.
+
+Application lifecycle
+1. The user completes a reusable profile: contact details, education, experience, projects, skills, achievements, research interests, portfolio links, preferences, and reusable answers. The user can paste resume text and attach an existing resume file. Sensitive eligibility facts are optional and explicitly entered, never inferred.
+2. Opportunities arrive through a URL pasted by the user, pasted listing text, configured RSS/Atom feeds, configured public job-board feeds, or an optional configured web-search provider. Scheduled discovery runs through n8n; it does not imply exhaustive coverage of the internet.
+3. The system records the source URL, opportunity type, organization, title, description, application URL, deadline and timezone when supplied, eligibility requirements, and missing information. It removes duplicates using canonical URLs and provider IDs, while keeping distinct opportunities at the same organization.
+4. Deterministic eligibility checks use explicit profile and listing facts. Missing facts produce 'unknown' and a visible question. Optional AI assesses fit and extracts structured information, with supporting source passages where practical. It must not turn a guess into a disqualifying fact.
+5. The user chooses an opportunity to prepare. AI, when configured, creates a tailored resume draft, cover letter or statement, and answers appropriate to that opportunity type. Every personal claim must be grounded in profile data or user-provided answers. Unknown achievements, qualifications, references, or commitments remain questions. Without AI credentials, profile management, intake, tracking, and direct profile-based autofill still work; AI generation is clearly unavailable.
+6. The user reviews and can edit the prepared answers and materials. The system keeps a version of the answer pack for each opportunity. It offers downloadable documents; printable HTML is the baseline export, with existing uploaded documents available for attachment.
+7. The user opens the application page and explicitly invokes the extension. It fills supported controls using the chosen answer pack and reports filled, skipped, ambiguous, and unanswered fields. It never clicks Submit, sends an email, accepts legal terms, pays a fee, completes an assessment, or claims an attestation for the user.
+8. The user reviews the form, attaches files as needed, and submits on the website. They then mark the application submitted in the tracker. The tracker must distinguish 'prepared', 'filled', and 'submitted'; filling alone is never submission evidence.
+
+Browser helper behavior
+- Manifest V3 extension for Chrome and Edge, scoped to the active tab when invoked by the user.
+- Support visible native text, email, telephone, URL, number, textarea, and ordinary select fields using labels, names, autocomplete attributes, placeholders, and prepared question-answer matches.
+- Offer a preview before writing values and report what happened afterward.
+- Handle common multi-page forms one page at a time, with the user navigating between pages.
+- Leave file upload selection, checkboxes for declarations or consent, login, CAPTCHA, payment, complex custom controls, and ambiguous fields to the user. Show the relevant prepared answer or document so they can finish manually.
+- Do not promise universal compatibility. The first version supports ordinary HTML forms; dynamic widgets and cross-origin frames may need manual completion or future adapters.
+- Website text and form labels are untrusted data. They cannot instruct the assistant to disclose secrets, change its behavior, or submit an application.
+
+Workflows to deliver
+1. Discover: a configurable n8n schedule calls the companion service to fetch enabled feeds or the configured search provider and add new opportunities.
+2. Intake: an n8n webhook accepts a URL or listing text, normalizes the opportunity, and adds it to the queue. The dashboard also supports direct intake.
+3. Prepare: an n8n webhook prepares one chosen opportunity from the user's profile, persists the results, and reports missing answers. The dashboard can trigger the same operation.
+Each workflow includes setup notes, error paths, bounded requests, and clear status updates. Workflows are delivered as importable JSON. Live search and AI calls occur only after the user configures their own credentials and enables the relevant provider.
+
+Tracking and interface
+The local dashboard provides profile setup, integrations status, opportunity intake, category and status filters, deadlines, fit and eligibility explanations, editable application packs, document downloads, and submitted-date tracking. It shows missing setup distinctly from an empty result. No sample opportunity is presented as a live discovered listing.
+
+Storage and integrations
+- Store profile, opportunities, answer packs, documents, and status history locally. Bind the service to loopback by default.
+- Store provider keys outside exported workflows and browser-visible content. Use a generated local pairing token for extension/service requests and service/n8n requests. Never include credentials in application packs or logs.
+- Do not request website passwords. The extension uses the browser page the user already opened and signed in to.
+- Optional provider costs depend on the user's accounts; do not purchase services or enable paid searches automatically.
+- Google Docs and Sheets from the video are not required for the first version. Local files and SQLite provide the same preparation/tracking functions without another mandatory account. CSV export provides portability; cloud document/sheet synchronization can be added later.
+
+Constraints and explicit limits
+This is application assistance, not a promise of acceptance or a fully autonomous universal application bot. It cannot manufacture required essays about unknown personal experiences, references, research proposals with invented evidence, hackathon projects, assessment results, or eligibility claims. It should surface these as work the user must supply. It cannot guarantee discovery of every opportunity or fill every third-party form.
+
+Builder choices
+Use Python for the companion service and a small plain HTML/CSS/JavaScript dashboard, JavaScript for the browser extension, SQLite for storage, and n8n workflow JSON for orchestration. Choose maintained libraries and pin versions after checking available runtime support. Use an environment-configured AI integration and optional search integration. Keep all personal data out of the distributed example configuration. These are recommendations by the builder, not choices made by the user.
+
+Verification and acceptance
+- Import and validate workflow JSON against the selected n8n version, checking that failures return explicit status and setup instructions.
+- Test source intake, duplicate handling, deadline parsing, explicit eligibility versus missing information, profile persistence, and application status transitions.
+- Test generated-pack validation with controlled AI responses: no unsupported claims, missing answers remain missing, and website content cannot replace instructions.
+- Demonstrate autofill on a local fixture containing representative native controls, ambiguous questions, upload inputs, consent controls, and a Submit button. Confirm that filling does not submit and leaves unsupported or consequential controls alone.
+- Verify the dashboard and extension together with a local service. Test live provider integration only if credentials are configured. Clearly report any live integration not exercised.
+
+Delivery
+Provide source, importable n8n workflows, browser extension folder, local setup/start instructions, example configuration, meaningful test results, and a concise account of remaining setup. Docker is installed on this computer but its engine was not running at the read-only check; the Python service can run separately, while starting n8n requires a working local Docker engine or an existing n8n instance.
