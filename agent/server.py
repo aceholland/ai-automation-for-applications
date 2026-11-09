@@ -123,7 +123,10 @@ def make_server(config):
                     raise KeyError("Page not found.")
                 fixtures = {"/tests/form-fixture.html": ROOT / "tests" / "form-fixture.html",
                             "/tests/fixture-runner.js": ROOT / "tests" / "fixture-runner.js",
-                            "/tests/autofill-core.js": ROOT / "extension" / "autofill.js"}
+                            "/tests/autofill-core.js": ROOT / "extension" / "autofill.js",
+                            "/tests/social-fixture.html": ROOT / "tests" / "social-fixture.html",
+                            "/tests/social-fixture.js": ROOT / "tests" / "social-fixture.js",
+                            "/tests/post-import-core.js": ROOT / "extension" / "post-import.js"}
                 if path in fixtures:
                     target = fixtures[path]
                 else:

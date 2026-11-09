@@ -24,7 +24,7 @@ const ctx={state:null,dirtyScopes:new Set(),get dirty(){return this.dirtyScopes.
 
 function renderGuide(ctx){
   const steps=[['Tell your story','Save contact information, real experience, projects, skills, and reusable answers in Profile. Paste resume text so it can be used in preparation.'],
-    ['Bring in opportunities','Add a listing link or paste its text. Connect RSS/Atom feeds, Greenhouse or Lever boards, and optional web search. Opportunities can be jobs, fellowships, hackathons, competitions, or anything else.'],
+    ['Bring in opportunities','Add a listing link or paste its text. Use Import LinkedIn posts / this page in the browser helper to preview and save a post you opened. Connect RSS/Atom feeds, Greenhouse or Lever boards, and optional web search. Opportunities can be jobs, fellowships, hackathons, competitions, or anything else.'],
     ['Prepare and review','Open an opportunity and prepare a pack from your profile. With AI configured, the assistant prioritizes relevant profile excerpts. Review and edit answers, resume, and cover letter drafts.'],
     ['Fill a page, then submit yourself','Load the browser extension, pair it in Connections, select an application pack, and preview fields. Fill only the fields you select. Navigate multi-page applications yourself, then preview the next page. Review, attach files, and submit on the website.'],
     ['Keep a clear record','When the website confirms submission, mark the application submitted in your tracker. Filling is recorded separately. Export your tracker at any time.']];

@@ -97,7 +97,8 @@ def intake(payload, store):
         "organization": str(payload.get("organization", ""))[:300],
         "category": str(payload.get("category") or infer_category(title + " " + text[:2000]))[:100],
         "application_url": str(payload.get("application_url") or url), "deadline": deadline,
-        "deadline_note": note, "requirements": requirements, "source": str(payload.get("source", "Added by you"))[:300]})
+        "deadline_note": note, "requirements": requirements, "source": str(payload.get("source", "Added by you"))[:300],
+        "source_id": str(payload.get("source_id", ""))[:80000]})
     return {"opportunity": item, "created": created}
 
 
@@ -155,9 +156,13 @@ def _source_items(source):
         raise ValueError("For Greenhouse or Lever, enter the company board slug, not its full URL.")
     if kind == "greenhouse":
         body = request_json(f"https://boards-api.greenhouse.io/v1/boards/{quote(value)}/jobs?content=true")
+        if not isinstance(body, dict) or not isinstance(body.get("jobs"), list) or any(not isinstance(j, dict) for j in body["jobs"]):
+            raise ValueError("Greenhouse returned an unexpected job-list format. Other sources will still be checked.")
         return [{"title": j["title"], "url": j["absolute_url"], "text": plain_text(j.get("content", "")) or j["title"]}
                 for j in body.get("jobs", [])[:100]]
     body = request_json(f"https://api.lever.co/v0/postings/{quote(value)}?mode=json")
+    if not isinstance(body, list) or any(not isinstance(j, dict) for j in body):
+        raise ValueError("Lever returned an unexpected job-list format. Other sources will still be checked.")
     return [{"title": j["text"], "url": j["hostedUrl"], "application_url": j.get("applyUrl", ""),
              "text": j.get("descriptionPlain") or plain_text(j.get("description", "")) or j["text"]}
             for j in body[:100]]
@@ -192,7 +197,10 @@ def discover(store, config=None):
             try:
                 response = request_json("https://api.search.brave.com/res/v1/web/search?" + urlencode({"q": query, "count": 10}),
                                         headers={"X-Subscription-Token": config.search_key})
-                for row in response.get("web", {}).get("results", []):
+                web = response.get("web", {}) if isinstance(response, dict) else None
+                if not isinstance(web, dict) or not isinstance(web.get("results", []), list) or any(not isinstance(row, dict) for row in web.get("results", [])):
+                    raise ValueError("Search returned an unexpected result format. Check the provider settings.")
+                for row in web.get("results", []):
                     result = intake({"title": row["title"], "url": row["url"], "text": plain_text(row.get("description") or row["title"]),
                                      "source": "Web search: " + query}, store)
                     added += int(result["created"])

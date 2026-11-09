@@ -4,6 +4,8 @@
 
 Use one profile for **jobs, internships, hackathons, research fellowships, competitions, scholarships, grants, and other opportunities**. Import listings, discover from configured sources, prepare truthful drafts, preview and fill supported fields, then review and submit yourself.
 
+![Opportunity Desk workspace](docs/images/opportunity-desk.png)
+
 ## Start in two minutes
 
 Requires **Python 3.11 or newer**. The local service has **no pip dependencies**.
@@ -27,6 +29,12 @@ The workspace starts empty. Your real data is stored in `data/`, which is exclud
 For a multi-page application, navigate to the next page yourself and preview again. Select **Refresh packs** after editing a pack in the dashboard. The extension requests temporary active-tab access when invoked and access to the local companion service. It does not request persistent access to all websites.
 
 The helper supports visible native text, email, telephone, URL, number, textarea, and single-select fields. It skips existing entries, ambiguous questions, unsupported widgets, uploads, consent/declarations, passwords, payments, and assessments. It does not click buttons or submit forms. Custom controls and cross-origin frames can require manual entry. Test compatibility on each site; universal autofill is not claimed.
+
+### Add opportunities from LinkedIn posts
+
+The browser helper also imports posts from the page you open while signed in to LinkedIn. Open the full post or your feed, expand **see more**, invoke the helper, and choose **Import LinkedIn posts / this page**. Select a captured post, review/edit its text and opportunity type, confirm the application link, and choose **Save to opportunity inbox**. It works before you have prepared an application pack.
+
+The importer reads currently visible post cards and keeps their source/permalink. It offers external links so you can identify the application URL. If LinkedIn's layout prevents detection, select the relevant post text first and import again. It can also save selected text or the main content of an ordinary opportunity page. It does not sign in for you, scroll or search LinkedIn in the background, or send messages. LinkedIn imports are user-invoked; scheduled discovery uses your configured feeds and search queries.
 
 ## What works without provider accounts
 
@@ -121,11 +129,13 @@ The app is designed for one user on one computer. Anyone with access to your loc
 
 ```sh
 python -m unittest discover -s tests -v
-node --test tests/autofill.test.cjs
+node --test tests/*.test.cjs
 python -m compileall -q agent scripts tests
 ```
 
 With the service running, open **http://127.0.0.1:8765/tests/form-fixture.html** and choose **Run autofill checks**. This exercises the distributed autofill core against real DOM fields using explicitly synthetic data. It verifies values, native selects, skipped controls, and that no form submission occurs. The fixtures are not actual opportunities.
+
+**http://127.0.0.1:8765/tests/social-fixture.html** tests the importer against synthetic LinkedIn-style post markup and saves that clearly labeled test post to your local inbox. Use a test data directory if you want to keep the production inbox empty.
 
 See **VERIFICATION.md** for the checks actually run and any remaining environment/setup limits. Regenerate portable workflow files with `python scripts/generate_workflows.py`.
 

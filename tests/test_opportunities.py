@@ -71,6 +71,24 @@ class OpportunityTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate_public_url("https://looks-public.example/")
 
+    def test_wrong_shaped_provider_json_is_a_source_error(self):
+        self.store.save_settings({"sources": [
+            {"type":"greenhouse","url":"example","name":"Bad board"},
+            {"type":"rss","url":"https://e.org/feed","name":"Good feed"}]})
+        rss='<rss><channel><item><title>Event</title><link>https://e.org/event</link></item></channel></rss>'
+        with patch("agent.opportunities.request_json",return_value=[]), patch("agent.opportunities.fetch_text",return_value=(rss,"https://e.org/feed")):
+            result=discover(self.store)
+        self.assertEqual(result["added"],1)
+        self.assertEqual(result["errors"][0]["source"],"Bad board")
+
+    def test_wrong_shaped_search_json_is_reported(self):
+        from types import SimpleNamespace
+        self.store.save_settings({"sources":[],"search_queries":["research fellowship"]})
+        with patch("agent.opportunities.request_json",return_value={"web":[]}):
+            result=discover(self.store,SimpleNamespace(search_key="test-key"))
+        self.assertEqual(len(result["errors"]),1)
+        self.assertEqual(result["errors"][0]["source"],"Web search")
+
 
 if __name__ == "__main__":
     unittest.main()

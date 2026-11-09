@@ -6,9 +6,9 @@
 
 **Architecture:** A Python standard-library companion service owns SQLite data and serves a local dashboard. Three n8n workflows call its authenticated API. A Manifest V3 browser extension previews and fills selected native controls from a chosen application pack.
 
-**Tech Stack:** Python 3.11+, SQLite, HTML/CSS/JavaScript, Chrome/Edge Manifest V3, n8n 3.1-compatible built-in HTTP/webhook/schedule nodes, unittest and node:test.
+**Tech Stack:** Python 3.11+, SQLite, HTML/CSS/JavaScript, Chrome/Edge Manifest V3, n8n 2.46.7-compatible built-in HTTP/webhook/schedule nodes, unittest and node:test. The registry's stable tag was checked during implementation; an unshipped 3.1 documentation version was not used.
 
-**Spec:** ../../../opportunity-agent-design.txt (delivered alongside this source directory; copy under docs for portability).
+**Spec:** ../../approved-design.txt (included in this source directory for portability).
 
 ## Global Constraints
 
@@ -47,46 +47,47 @@
 
 **Interfaces:** `Store(data_dir: Path)`; `get_profile() -> dict`; `save_profile(dict) -> dict`; `upsert_opportunity(dict) -> tuple[dict,bool]`; `list_opportunities() -> list[dict]`; `get_opportunity(id: str) -> dict`; `set_status(id: str,status: str) -> dict`; `save_pack(id: str,pack: dict) -> dict`; `get_settings()/save_settings(dict)`.
 
-- [ ] Write and run failing unittest cases for persistence, canonical URL deduplication, distinct opportunities at one organization, pack versions, submitted-status preservation, and invalid transitions.
-- [ ] Implement config and store, using parameterized SQL, per-operation connections, and atomic JSON data updates.
-- [ ] Run `python -m unittest tests.test_store -v`; expect all cases to pass.
+- [x] Write and run failing unittest cases for persistence, canonical URL deduplication, distinct opportunities at one organization, pack versions, submitted-status preservation, and invalid transitions.
+- [x] Implement config and store, using parameterized SQL, per-operation connections, and atomic JSON data updates.
+- [x] Run `python -m unittest tests.test_store -v`; expect all cases to pass.
 
 ### Task 2: Intake, discovery, eligibility, and truthful preparation
 
 **Interfaces:** `intake(payload: dict,store: Store) -> dict`; `discover(store: Store) -> dict`; `assess(profile: dict,opportunity: dict) -> dict`; `prepare(profile: dict,opportunity: dict,ai: callable|None=None) -> dict`; `render_document(opportunity: dict,pack: dict,kind: str) -> str`.
 
-- [ ] Write failing tests for pasted text and URLs, RSS/Atom and public-board adapters, invalid/private source URLs, duplicates, partial-source failure, deadline uncertainty, missing eligibility facts, and strict AI response validation.
-- [ ] Implement public-network retrieval with redirect validation, size/time limits, and provider calls; feed/search adapters; deterministic explicit-fact assessment; profile-based baseline packs and optional configured AI drafts with evidence references.
-- [ ] Run `python -m unittest tests.test_opportunities tests.test_preparation -v`; expect all cases to pass.
+- [x] Write failing tests for pasted text and URLs, RSS/Atom and public-board adapters, invalid/private source URLs, duplicates, partial-source failure, deadline uncertainty, missing eligibility facts, and strict AI response validation.
+- [x] Implement public-network retrieval with redirect validation, size/time limits, and provider calls; feed/search adapters; deterministic explicit-fact assessment; profile-based baseline packs and optional configured AI drafts with evidence references.
+- [x] Run `python -m unittest tests.test_opportunities tests.test_preparation -v`; expect all cases to pass.
 
 ### Task 3: Authenticated API and local dashboard
 
 **Interfaces:** API endpoints `/api/health`, `/api/bootstrap`, `/api/state`, `/api/profile`, `/api/settings`, `/api/intake`, `/api/discover`, `/api/opportunities/{id}`, `/api/opportunities/{id}/prepare`, `/api/opportunities/{id}/pack`, `/api/opportunities/{id}/status`, `/api/opportunities/{id}/documents/{kind}`, `/api/export.csv`, `/api/resume`.
 
-- [ ] Write failing HTTP tests for required token, rejected cross-origin mutation, profile persistence, intake/preparation round trip, resume limits, missing resources, and escaped downloads.
-- [ ] Implement service routing, validation, safe errors, static pages, uploads and exports.
-- [ ] Implement a responsive dashboard with profile, opportunity queue, editable pack, integrations and source setup; no fabricated metrics. Use an editorial cream/ink/green visual system with strong typography, clear pending states, and visible keyboard focus.
-- [ ] Run API tests and check service/dashboard in a real browser at desktop and narrow widths, including empty, invalid, loading, success, and search no-results states.
+- [x] Write failing HTTP tests for required token, rejected cross-origin mutation, profile persistence, intake/preparation round trip, resume limits, missing resources, and escaped downloads.
+- [x] Implement service routing, validation, safe errors, static pages, uploads and exports.
+- [x] Implement a responsive dashboard with profile, opportunity queue, editable pack, integrations and source setup; no fabricated metrics. Use an editorial cream/ink/green visual system with strong typography, clear pending states, and visible keyboard focus.
+- [x] Run API tests and check service/dashboard in a real browser at desktop and narrow widths, including empty, invalid, loading, success, and search no-results states.
 
 ### Task 4: Review-before-fill browser extension
 
 **Interfaces:** `OpportunityAutofill.scan(document,pack) -> array`; `OpportunityAutofill.fill(document,preview) -> object`. Preview rows contain a stable locator, label, existing value, proposed value, status, and reason. Packs have `profile`, `answers:[{question,answer}]`, and `opportunity_id`.
 
-- [ ] Write failing node:test cases for label/name/autocomplete matching, exact user answers, ambiguous duplicate labels, select values, existing user data, and unsupported/consequential controls.
-- [ ] Implement a pure matching core plus injected scan/fill, extension pairing, opportunity selection, per-field preview/check controls, result reporting, and filled-status recording only when values were written.
-- [ ] Run `node --test tests/autofill.test.cjs` and exercise the DOM fixture; assert no submission and untouched consent/upload/password controls.
+- [x] Write failing node:test cases for label/name/autocomplete matching, exact user answers, ambiguous duplicate labels, select values, existing user data, and unsupported/consequential controls.
+- [x] Implement a pure matching core plus injected scan/fill, extension pairing, opportunity selection, per-field preview/check controls, result reporting, and filled-status recording only when values were written.
+- [x] Run `node --test tests/autofill.test.cjs` and exercise the DOM fixture; assert no submission and untouched consent/upload/password controls.
 
 ### Task 5: n8n workflows and usable startup
 
 **Interfaces:** Importable JSON uses only supported built-in nodes; companion URL defaults to `http://agent:8765` in Compose. Use an n8n Header Auth credential for `X-Opportunity-Token`; protect webhook triggers with a separate Header Auth credential. No credentials are distributed.
 
-- [ ] Write workflow checks for connected nodes, authentication, HTTP body mappings, errors, and disabled-by-default schedules.
-- [ ] Generate discover/manual+schedule, intake, and prepare workflows with notes and explicit error responses. Add Compose with loopback-only ports and persistent volumes, Python-only launcher, setup/pairing instructions, and environment examples.
-- [ ] Validate workflow schemas and import/run against a local n8n instance if Docker can run; report environmental limits precisely otherwise.
+- [x] Write workflow checks for connected nodes, authentication, HTTP body mappings, errors, and disabled-by-default schedules.
+- [x] Generate discover/manual+schedule, intake, and prepare workflows with notes and explicit error responses. Add Compose with loopback-only ports and persistent volumes, Python-only launcher, setup/pairing instructions, and environment examples.
+- [x] Validate workflow schemas and import/run against a local n8n instance if Docker can run; report environmental limits precisely otherwise.
 
 ### Task 6: Whole-project verification, review, and delivery
 
-- [ ] Run complete Python and JavaScript tests, syntax checks, strict UI audit and configured UI commands.
-- [ ] Verify the running app, download/export flow, extension integration and narrow layout; save representative screenshots.
-- [ ] Request one fresh-context code review against this plan and the approved design; fix material findings with reproducing tests and rerun the suite.
-- [ ] Provide a clean zip without runtime personal data or secrets, source folder, startup link, setup guidance, and a verification report that distinguishes mocked from live provider tests.
+- [x] Run complete Python and JavaScript tests, syntax checks, strict UI audit and configured UI commands.
+- [x] Verify the running app, download/export flow, extension integration and narrow layout; save representative screenshots.
+- [x] Request one fresh-context code review against this plan and the approved design; fix material findings with reproducing tests and rerun the suite.
+- [x] Provide a clean zip without runtime personal data or secrets, source folder, startup link, setup guidance, and a verification report that distinguishes mocked from live provider tests.
+

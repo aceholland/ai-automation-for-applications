@@ -9,6 +9,7 @@ test('matches contact labels and autocomplete, without guessing company name',()
   assert.equal(matchField(field('Contact',{autocomplete:'given-name'}),pack).value,'Asha');
   assert.equal(matchField(field('Company name'),pack).status,'unanswered');
   assert.equal(matchField(field('Company name',{labels:['Company name','name']}),pack).status,'unanswered');
+  assert.equal(matchField(field('Company name',{autocomplete:'name'}),pack).status,'unanswered');
 });
 test('uses exact saved application answers',()=>{
   assert.equal(matchField(field('Why this program?'),pack).value,'I want to study accessible search.');
@@ -28,6 +29,8 @@ test('native select matches only a unique available value or text',()=>{
 test('duplicate visible labels and conflicting profile/answer values are ambiguous',()=>{
   const plan=planFields([field('Email'),field('Email')],pack);
   assert.equal(plan[0].status,'ambiguous');assert.equal(plan[1].status,'ambiguous');
+  const partiallyFilled=planFields([field('Email',{value:'reference@example.org'}),field('Email')],pack);
+  assert.equal(partiallyFilled[1].status,'ambiguous');
   assert.equal(matchField(field('Email'),{...pack,answers:[{question:'Email',answer:'different@example.org'}]}).status,'ambiguous');
 });
 test('mismatched numeric and URL controls stay unanswered',()=>{

@@ -67,6 +67,15 @@ class StoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.add(title=" ")
 
+    def test_distinct_social_posts_from_one_feed_keep_their_identity(self):
+        a,_=self.add(url="https://www.linkedin.com/feed/",source_id="activity:one")
+        b,created=self.add(url="https://www.linkedin.com/feed/",source_id="activity:two")
+        again,duplicate=self.add(url="https://www.linkedin.com/feed/",source_id="activity:one")
+        self.assertTrue(created)
+        self.assertNotEqual(a["id"],b["id"])
+        self.assertEqual(a["id"],again["id"])
+        self.assertFalse(duplicate)
+
 
 if __name__ == "__main__":
     unittest.main()

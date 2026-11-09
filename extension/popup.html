@@ -11,6 +11,17 @@
     </form>
   </details>
   <section id="connected" hidden>
+    <button id="capture-page" class="secondary" type="button">Import LinkedIn posts / this page</button>
+    <section id="post-review" hidden aria-label="Opportunity import preview">
+      <label for="post-choice">Post to import</label><select id="post-choice"></select>
+      <label for="post-title">Opportunity title</label><input id="post-title">
+      <label for="post-category">Opportunity type</label><select id="post-category"></select>
+      <label for="post-text">Review the captured text</label><textarea id="post-text" rows="7"></textarea>
+      <label for="post-source">Source post URL</label><input id="post-source" type="url">
+      <label for="post-application">Application URL (optional)</label><input id="post-application" type="url">
+      <p id="post-links"></p><button id="save-post" type="button">Save to opportunity inbox</button>
+    </section>
+    <hr>
     <label for="opportunity">Application pack</label><select id="opportunity"></select>
     <p id="selection-note"></p>
     <div class="actions"><button id="preview" type="button">Preview this page</button><button id="reload" class="secondary" type="button">Refresh packs</button></div>

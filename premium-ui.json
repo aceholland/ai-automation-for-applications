@@ -8,7 +8,7 @@
   "requiredCommands": ["unit", "autofill", "syntax"],
   "commands": {
     "unit": "python -m unittest discover -s tests -v",
-    "autofill": "node --test tests/autofill.test.cjs",
+    "autofill": "node --test tests/*.test.cjs",
     "syntax": "python -m compileall -q agent scripts tests"
   },
   "evidence": {

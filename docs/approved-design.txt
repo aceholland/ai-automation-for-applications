@@ -1,6 +1,8 @@
 OPPORTUNITY APPLICATION ASSISTANT — DESIGN
 Date: 9 November 2026
 
+Implementation update requested by the user: import LinkedIn posts through the browser helper. Read the visible/opened post or user-selected text in the existing signed-in tab, preview it, and save it into the same opportunity inbox. Keep post identity and source links; do not require background LinkedIn crawling.
+
 Purpose
 Build a personal assistant based on the user's linked n8n tutorial, expanded from job matching and resume preparation to jobs, internships, hackathons, research fellowships, competitions, scholarships, grants, and user-defined opportunity types. It should reduce the work of finding relevant opportunities, preparing truthful application materials, and entering repeated information.
 

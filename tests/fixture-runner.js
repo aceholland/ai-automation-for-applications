@@ -22,6 +22,6 @@ document.getElementById('run-test').addEventListener('click',()=>{
     'four values written':result.filled===4
   };
   const passed=Object.values(tests).filter(Boolean).length;
-  document.getElementById('fixture-result').textContent=`${passed}/${Object.keys(tests).length} browser autofill checks passed.\n`+Object.entries(tests).map(([name,ok])=>`${ok?'PASS':'FAIL'} ${name}`).join('\n');
+  document.getElementById('fixture-result').textContent=`${passed}/${Object.keys(tests).length} browser autofill checks passed.\n`+Object.entries(tests).map(([name,ok])=>`${ok?'PASS':'FAIL'} ${name}`).join('\n')+'\n'+result.details.join('\n');
   document.getElementById('run-test').disabled=true;
 });

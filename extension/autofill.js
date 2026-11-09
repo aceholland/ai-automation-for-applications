@@ -28,7 +28,9 @@
     const candidates=[];
     for(const [key,names] of Object.entries(aliases))if(p[key]&&labels.some(label=>names.includes(label)))candidates.push(String(p[key]));
     const auto=(field.autocomplete||'').split(/\s+/).pop();
-    if(autocomplete[auto]&&p[autocomplete[auto]])candidates.push(String(p[autocomplete[auto]]));
+    const vagueLabel=!labels.length||['contact','unlabeled field','field'].includes(labels[0]);
+    const autoKey=autocomplete[auto];
+    if(autoKey&&p[autoKey]&&(vagueLabel||(aliases[autoKey]||[]).includes(labels[0])))candidates.push(String(p[autoKey]));
     for(const answer of pack.answers||[])if(labels.includes(norm(answer.question))&&String(answer.answer||'').trim())candidates.push(String(answer.answer));
     const unique=[...new Set(candidates)];
     if(unique.length>1)return {...base,status:'ambiguous',reason:'More than one saved value matches this question. Choose manually.'};
@@ -48,7 +50,7 @@
   function planFields(fields,pack){
     const result=fields.map(field=>matchField(field,pack));
     const counts=new Map();
-    for(const field of result)if(field.status==='ready'){const key=norm(field.label);counts.set(key,(counts.get(key)||0)+1);}
+    for(const field of result)if(!field.hidden&&field.status!=='skipped'){const key=norm(field.label);counts.set(key,(counts.get(key)||0)+1);}
     return result.map(field=>field.status==='ready'&&counts.get(norm(field.label))>1?{...field,status:'ambiguous',reason:'Duplicate visible questions. Complete these manually.'}:field);
   }
   function describe(node,index,doc){

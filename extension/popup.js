@@ -2,6 +2,7 @@
 const $=id=>document.getElementById(id);
 let connection={base:'http://127.0.0.1:8765',token:''};
 let opportunities=[];let preview=[];let targetTab=null;let busyState=false;
+let posts=[];let categories=[];
 function say(text,error=false){$('message').textContent=text;$('message').className=error?'error':'';}
 function clearPreview(){preview=[];targetTab=null;$('preview-list').replaceChildren();$('fill').hidden=true;}
 async function run(button,operation){
@@ -23,11 +24,11 @@ async function api(path,method='GET',data){
   }catch(e){if(e.name==='AbortError'||e instanceof TypeError)throw new Error('The local service is unavailable. Start the agent, check its address, and retry.');throw e;}finally{clearTimeout(timer);}
 }
 async function load(){
-  const state=await api('/api/state');opportunities=state.opportunities.filter(o=>o.pack&&o.status!=='archived');
+  const state=await api('/api/state');opportunities=state.opportunities.filter(o=>o.pack&&o.status!=='archived');categories=state.categories;
   $('opportunity').replaceChildren();
   for(const item of opportunities){const option=document.createElement('option');option.value=item.id;option.textContent=`${item.title} · ${item.status}`;$('opportunity').append(option);}
   $('connected').hidden=false;$('pairing').open=false;$('dashboard').href=connection.base;
-  clearPreview();selectionNote();say(opportunities.length?`${opportunities.length} prepared application pack${opportunities.length===1?'':'s'} available.`:'Prepare an application in your dashboard, then click Refresh packs.');
+  clearPreview();selectionNote();say(opportunities.length?`${opportunities.length} prepared application pack${opportunities.length===1?'':'s'} available.`:'Import an opportunity from this page, or prepare one in your dashboard.');
 }
 function selectionNote(){const item=opportunities.find(x=>x.id===$('opportunity').value);$('selection-note').textContent=item?`Pack version ${item.pack.version}. ${item.status==='submitted'?'Already marked submitted; check before using it again.':'You choose the fields and submit yourself.'}`:'No prepared application selected.';}
 $('pair-form').addEventListener('submit',event=>{event.preventDefault();run($('connect'),async()=>{
@@ -35,6 +36,29 @@ $('pair-form').addEventListener('submit',event=>{event.preventDefault();run($('c
 });});
 $('reload').addEventListener('click',()=>run($('reload'),load));
 $('opportunity').addEventListener('change',()=>{clearPreview();selectionNote();});
+function showPost(){
+  const post=posts[Number($('post-choice').value)];if(!post)return;
+  $('post-title').value=post.title;$('post-text').value=post.text;$('post-source').value=post.url;$('post-application').value=post.application_url;$('post-category').value=post.category;
+  $('post-links').textContent=post.links.length>1?'Links found in this post (choose the application link):\n'+post.links.join('\n'):'';
+}
+$('post-choice').addEventListener('change',showPost);
+$('capture-page').addEventListener('click',()=>run($('capture-page'),async()=>{
+  const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
+  if(!tab?.id||!/^https?:\/\//.test(tab.url||''))throw new Error('Open a LinkedIn post or opportunity page first.');
+  await chrome.scripting.executeScript({target:{tabId:tab.id},files:['post-import.js']});
+  const result=await chrome.scripting.executeScript({target:{tabId:tab.id},func:()=>globalThis.OpportunityPostImport.capture(document,location)});
+  posts=result[0].result||[];if(!posts.length)throw new Error('Select the post text or open the full post and try importing again.');
+  $('post-choice').replaceChildren(...posts.map((post,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=post.title;return option;}));
+  $('post-category').replaceChildren(...categories.map(category=>{const option=document.createElement('option');option.value=category;option.textContent=category;return option;}));
+  $('post-review').hidden=false;showPost();say(`${posts.length} post${posts.length===1?'':'s'} found. Review the text, type, and source before saving. Expand “see more” on LinkedIn before importing if needed.`);
+}));
+$('save-post').addEventListener('click',()=>run($('save-post'),async()=>{
+  const original=posts[Number($('post-choice').value)];if(!original)throw new Error('Import a post first.');
+  const payload={...original,title:$('post-title').value.trim(),text:$('post-text').value.trim(),url:$('post-source').value.trim(),category:$('post-category').value,application_url:$('post-application').value.trim()};
+  if(!payload.title||!payload.text)throw new Error('Keep an opportunity title and the relevant post text.');
+  const result=await api('/api/intake','POST',payload);
+  say(result.created?'Post saved to your opportunity inbox. Open the dashboard to prepare the application.':'This post is already in your opportunity inbox.');
+}));
 $('preview').addEventListener('click',()=>run($('preview'),async()=>{
   clearPreview();
   const item=opportunities.find(x=>x.id===$('opportunity').value);if(!item)throw new Error('Prepare an application in your dashboard first.');

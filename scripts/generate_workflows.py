@@ -17,7 +17,7 @@ def main():
     output=ROOT/'workflows';output.mkdir(exist_ok=True)
     for kind in ('discover','intake','prepare'):
         title='Opportunity Desk — '+kind.title()
-        notes=("## Setup\n1. Run the companion service. Compose URL: http://agent:8765. For a host-run service, edit the HTTP URL to http://host.docker.internal:8765 and ensure it is reachable from your n8n container.\n"
+        notes=("## Setup\n1. Run the companion service. Compose URL: http://agent:8765. If n8n and the service both run directly on the host, edit the HTTP URL to http://127.0.0.1:8765. Use the bundled Compose agent when n8n runs in Docker.\n"
                "2. Select a Header Auth credential named Opportunity Desk service, with header X-Opportunity-Token and the token shown in Connections.\n"
                "3. Intake/Prepare webhooks also require a separate Header Auth credential named Opportunity webhook access. Set header X-Workflow-Token to a separate random value.\n"
                "4. Workflows ship inactive. Discovery schedule also ships disabled. Configure sources, test manually, then enable the schedule and publish only when you want recurring runs.\n"

@@ -112,7 +112,8 @@ class Store:
         if not title:
             raise ValueError("Enter an opportunity title.")
         url = canonical_url(str(item.get("url", "")))
-        key = url or hashlib.sha256((title + str(item.get("organization", "")) + str(item.get("description", ""))).encode()).hexdigest()
+        source_id = str(item.get("source_id", ""))[:80000]
+        key = ("source:" + hashlib.sha256((url + "\n" + source_id).encode()).hexdigest() if source_id else url) or hashlib.sha256((title + str(item.get("organization", "")) + str(item.get("description", ""))).encode()).hexdigest()
         with self.connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
             row = conn.execute("SELECT data FROM opportunities WHERE dedupe_key=?", (key,)).fetchone()

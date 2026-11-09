@@ -1,7 +1,7 @@
 {
   "findings": [],
   "mode": "strict",
-  "projectRoot": "C:\\Users\\User\\Documents\\Codex\\2026-11-09\\i-x20\\outputs\\opportunity-agent",
+  "projectRoot": ".",
   "schemaVersion": 1,
   "summary": {
     "errors": 0,
