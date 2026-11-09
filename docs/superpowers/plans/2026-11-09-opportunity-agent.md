@@ -90,4 +90,3 @@
 - [x] Verify the running app, download/export flow, extension integration and narrow layout; save representative screenshots.
 - [x] Request one fresh-context code review against this plan and the approved design; fix material findings with reproducing tests and rerun the suite.
 - [x] Provide a clean zip without runtime personal data or secrets, source folder, startup link, setup guidance, and a verification report that distinguishes mocked from live provider tests.
-
